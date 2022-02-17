@@ -1,0 +1,59 @@
+---
+title: "HW4"
+author: "Craig Orman"
+date: "2/16/2022"
+output: html_document
+---
+This is the HW4 that was announced in the class notes, link to the [Github Project](https://github.com/ArgentCode/DS202-HW4 "Github Project")
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(tidyverse)
+choco <- read.csv("https://ds202-at-isu.github.io/labs/data/choco.csv")
+```
+
+### Question set 1
+1. What is the overall number of chocolate bars rated?
+  1852 reviews
+2. How does the number of ratings depend on the year? Draw a bar chart of the number of reports.
+  As you can see below, they seem to have peeked in 2015 and then dropped off after that.
+```{r}
+tail(choco) #1852 total ratings
+ggplot(choco, aes(x=as.factor(Review.Date))) + geom_bar() +
+  ggtitle("Reviews by year")  +xlab("Year") + ylab("Number of Reviews")
+```
+
+### Question set 2
+1. How are ratings distributed? Draw a histogram of ratings and describe it. Don’t forget to mention outliers, if there are any.
+```{r}
+ggplot(choco, aes(x=Rating)) + geom_histogram() +
+  ggtitle("Ratings of Reviews")  +xlab("Rating") + ylab("Number of Reviews")
+```
+There are 2 definite outliers at each extreme, and what appears to be a small group of outliers in the low rating zone. The histogram, outside of the small grouping and outliers, is mostly unimodal and bell shaped. It is reasonably symmetric, seemingly centered on 3.5.
+
+2. Do ratings depend on the cocoa percentage of a chocolate bar?
+```{r}
+ggplot(choco, aes(x=Rating, y=Cocoa.Pct)) + geom_point() +
+  ggtitle("Scatterplot of Ratings to cocoa")  +xlab("Rating") + ylab("Cocoa Percentage")
+```
+There does not appear to be a strong correlation between the two variables, actually a possible negative correlation if you consider that the higher rankings seem to get tighter around about 70%.
+  
+3. How do ratings compare across different company locations? Focus on the three locations with the most ratings (USA, France, Canada)
+```{r}
+CountryChoco = dplyr::filter(choco, Company.Location %in% c("U.S.A.", "France", "Canada"))
+
+ggplot(CountryChoco, aes(x=Rating)) + geom_boxplot() + facet_grid(~Company.Location) + coord_flip()
+```
+
+France has the tightest IQR of ratings, while Canada's IQR goes into the highest ratings, and the USA's IQR goes lower. All three countries have almost exactly the same median at 3.25, France and USA both have outliers in the very low ratings, but all three countries have 4.0 in their extended IQR, meaning that they all can definitely put out the occasional amazing chocolate.
+
+### Personal Question
+Does bean type have any correlation with the rating?
+```{r}
+ggplot(CountryChoco, aes(y=Rating, x=as.factor(Bean.Type))) + geom_boxplot() + coord_flip()
+```
+
+This graph makes me suspicious, most of the medians fall along the 3.0 - 3.5 range which is well within the IQR and standard deviation of the total study. It could very well be that bean type has no strong correlation with rating, and that some bean types are outliers. Ignoring all the single data point bean types, look at Forastero (Arriba). This bean is much lower than the rest in its IQR, so perhaps this bean is on average not great. But I think that bean is just one of many factors that influence rating, and is not a primary driver of rating. 
